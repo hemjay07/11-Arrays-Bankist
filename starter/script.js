@@ -124,11 +124,26 @@ const calcDisplaySummary = function (account) {
   labelSumInterest.textContent = `${interest}€`;
 };
 //////////////
-
+// sort
+// we create a state variable so that we can return sort to false
+let sorted = true;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault;
+  calcDisplayMovement(currentAccount.movements, sorted);
+  sorted = !sorted;
+});
 // Display Movements
-const calcDisplayMovement = function (movements) {
+const calcDisplayMovement = function (movements, sort = false) {
   containerMovements.innerHTML = '';
-  movements.forEach(function (movement, index) {
+  const movs = sort
+    ? movements.slice().sort(function (a, b) {
+        // to arrange in ascending order, if a > b, switch their place(return a positive number and if a < b, leave that like that (return a negative number))
+        if (a > b) return 1;
+        if (a < b) return -2;
+      })
+    : movements;
+
+  movs.forEach(function (movement, index) {
     const type = movement > 0 ? 'deposit' : 'withdrawal';
     let html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">2 ${type}</div>
@@ -309,5 +324,156 @@ const allMovements = accounts
   .map(acc => acc.movements)
   .flat()
   .reduce((acc, mov) => acc + mov, 0);
-console.log(sumOfAllTransactions);
 console.log(allMovements);
+
+console.log(
+  movements.sort((a, b) => {
+    if (a > b) return 1;
+    if (b > a) return -1;
+  })
+);
+// generate an array of random 100 dice rolls
+const diceRolls = Array.from(
+  { length: 100 },
+  () => Math.trunc(Math.random() * 6) + 1
+);
+console.log(diceRolls);
+// using the fill method
+// the fill method is only called once and can therefore fill with only one value unlike the map method which fills with different values for different elements
+const diceRollsF = new Array(100);
+diceRollsF.fill(Math.trunc(Math.random() * 6) + 1);
+console.log(diceRollsF);
+// 1.
+const sumDeposit = accounts
+  .map(mov => mov.movements)
+  .flat()
+  .filter(mov => mov > 0)
+  .reduce((acc, mov) => acc + mov, 0);
+
+console.log(sumDeposit);
+
+// // 2
+// const numDeposits1000 = accounts
+//   .flatMap(acc => acc.movements)
+//   .reduce((cumm, mov) => {
+//     if (mov >= 1000) return ++cumm;
+//     else return cumm;
+//   }, 0);
+// console.log(numDeposits1000);
+
+// // 3
+// // cre ating a new object using the reduce method
+// const sums = accounts
+//   .flatMap(acc => acc.movements)
+//   .reduce(
+//     (acc, mov) => {
+//       // mov > 0 ? ++acc.sumDeposit : ++acc.sumWithdrawal;
+//       ++acc[mov > 0 ? 'sumDeposited' : 'sumWithdrawal'];
+//       return acc;
+//     },
+//     { sumDeposited: 0, sumWithdrawal: 0 }
+//   );
+// console.log(sums);
+// const { sumDeposited, sumWithdrawal } = sums;
+
+// // 4   convert a length of strings to title case
+// //  this is a nice title => This Is a Nice Title
+// // this is a LONG title but not too long => This Is a Long Title but Not Too Long
+// const convertTitleCase = function (title) {
+//   const exceptions = ['a', 'an', 'the', 'and', 'but', 'or', 'on', 'in', 'with'];
+//   const titleCase = title
+//     .toLowerCase()
+//     .split(' ')
+//     .map(function (title) {
+//       return exceptions.includes(title)
+//         ? title
+//         : title[0].toUpperCase().concat(title.slice(1));
+//     })
+//     .join(' ');
+//   return titleCase;
+// };
+// console.log(convertTitleCase('this iS A NIce title'));
+// console.log(convertTitleCase('this is a LONG title but not too long'));
+
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Matilda'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Michael'] },
+];
+
+// 1.
+dogs.forEach(dog => (dog.reccomendedFood = dog.weight ** 0.75 * 28));
+// Forumla: recommendedFood = weight ** 0.75 * 28
+
+// 2.
+// finding a dog by the owners name
+const findDog = function (owner) {
+  return dogs.find(dog => dog.owners.includes(owner));
+};
+// how much a dog is eating
+const howMuch = function (dog) {
+  if (dog.curFood > dog.reccomendedFood * 1.1) {
+    return 'too much';
+  } else if (dog.curFood < dog.reccomendedFood * 0.9) {
+    return 'not enough';
+  } else return 'just enough';
+};
+
+const reportDoginfo = function (owner) {
+  const dog = findDog(owner);
+
+  console.log(`${owner}'s dog is eating ${howMuch(dog)}`);
+};
+reportDoginfo('Sarah');
+
+// 3. Create an array containing all owners of dogs who eat too much
+// ('ownersEatTooMuch') and an array with all owners of dogs who eat too little
+// ('ownersEatTooLittle').
+
+// console.log(dogs.map(dog => dog).filter(dog => {
+// howMuch(dog) === 'too much'
+// }));
+
+const ownersEatTooMuch = dogs
+  .filter(dog => {
+    return howMuch(dog) === 'too much';
+  })
+  .flatMap(dog => dog.owners);
+const ownersEatTooLittle = dogs
+  .filter(dog => {
+    return howMuch(dog) === 'not enough';
+  })
+  .flatMap(dog => dog.owners);
+
+console.log(ownersEatTooLittle, ownersEatTooMuch);
+
+//4
+console.log(
+  `${ownersEatTooLittle.join(
+    ' and '
+  )}'s dogs eat too little , ${ownersEatTooMuch.join(
+    ' and '
+  )}'s dogs eat too much`
+);
+
+//5
+console.log(dogs.some(dog => dog.curFood === dog.reccomendedFood));
+
+// 6
+console.log(dogs.some(dog => howMuch(dog) === 'just enough'));
+
+// 7
+const dogsEatingOkay = dogs.filter(dog => howMuch(dog) === 'just enough');
+console.log(dogsEatingOkay);
+// 8
+console.log(dogs);
+console.log(
+  dogs.slice().sort((a, b) => {
+    // if (a.reccomendedFood > b.reccomendedFood) return 1;
+    // else {
+    //   return -1;
+    // }
+    return a.reccomendedFood - b.reccomendedFood;
+  })
+);
